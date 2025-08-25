@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faro Docente - Herramientas Tecnológicas I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --duoc-yellow: #fdb913;
+            --glow-color: rgba(253, 185, 19, 0.5);
+            --futuristic-cyan: #00F2FE;
+            --futuristic-purple: #A951F6;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        #background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .main-content {
+            transition: filter 0.3s ease-in-out;
+        }
+        .content-blur {
+            filter: blur(5px) brightness(0.7);
+        }
+        .glass-card {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .info-card:hover {
+            border-color: var(--duoc-yellow);
+            box-shadow: 0 0 15px rgba(253, 185, 19, 0.2);
+            transform: translateY(-2px);
+        }
+        .experience-tab {
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px transparent;
+            white-space: nowrap; /* Evita que el texto del botón se rompa */
+        }
+        .experience-tab.active, .experience-tab:hover {
+            border-bottom-color: var(--duoc-yellow);
+            color: var(--duoc-yellow);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+        .week-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            flex-shrink: 0; /* Evita que los botones se encojan */
+        }
+        .week-button:hover {
+            background: rgba(253, 185, 19, 0.1);
+            border-color: rgba(253, 185, 19, 0.5);
+        }
+        .week-button.active {
+            background: var(--duoc-yellow);
+            color: #111827;
+            font-weight: 700;
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+        .content-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .futuristic-text-gradient {
+            background-image: linear-gradient(90deg, var(--futuristic-cyan), var(--futuristic-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-yellow {
+            background-image: linear-gradient(60deg, #FFD54F, #fdb913, #FFB300);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(253, 185, 19, 0.3);
+        }
+        .futuristic-btn {
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid var(--duoc-yellow);
+            color: var(--duoc-yellow);
+            text-shadow: 0 0 5px var(--glow-color);
+            transition: all 0.4s ease;
+            z-index: 1;
+        }
+        .futuristic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(253, 185, 19, 0.3), transparent);
+            transition: left 0.6s ease;
+            z-index: -1;
+        }
+        .futuristic-btn:hover {
+            color: white;
+            box-shadow: 0 0 25px var(--glow-color);
+        }
+        .futuristic-btn:hover::before {
+            left: 100%;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #111111;
+            color: #e2e8f0;
+            margin: auto;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid var(--duoc-yellow);
+            width: 90%;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+        }
+        .close-button {
+            color: #94a3b8;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close-button:hover {
+            color: white;
+        }
+        @keyframes spin {
+           to { transform: rotate(360deg); }
+        }
+        .gradient-spinner {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--duoc-yellow), var(--futuristic-purple), var(--futuristic-cyan), var(--duoc-yellow));
+            animation: spin 1s linear infinite;
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 8px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 8px));
+        }
+        .keyword-yellow {
+            color: var(--duoc-yellow);
+            font-weight: 600;
+        }
+        .keyword-cyan {
+            color: var(--futuristic-cyan);
+            font-weight: 600;
+        }
+        /* Ocultar la barra de scroll horizontal */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="background-animation"></canvas>
+
+    <!-- Header -->
+    <header class="py-6 relative main-content">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <img src="https://www.duoc.cl/wp-content/uploads/2020/02/logo-duoc-uc.png" alt="Logo Duoc UC" class="h-12 md:h-14 mx-auto mb-4" onerror="this.style.display='none'">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-wider">
+                <span class="text-white">Faro</span>
+                <span class="text-gradient-yellow">Docente</span>
+            </h1>
+            <p class="text-md text-gray-400 mt-2">Guía Interactiva para Herramientas Tecnológicas I (GAA2201)</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 py-8 relative main-content">
+
+        <!-- Experiences Tabs -->
+        <div id="experiences-container" class="flex justify-between sm:justify-center space-x-2 sm:space-x-4 md:space-x-8 border-b border-gray-800 mb-6">
+            <button id="tab-exp1" class="experience-tab py-3 px-2 sm:px-4 text-sm sm:text-lg font-semibold active" onclick="showExperience('exp1')">Experiencia 1</button>
+            <button id="tab-exp2" class="experience-tab py-3 px-2 sm:px-4 text-sm sm:text-lg font-semibold" onclick="showExperience('exp2')">Experiencia 2</button>
+            <button id="tab-exp3" class="experience-tab py-3 px-2 sm:px-4 text-sm sm:text-lg font-semibold" onclick="showExperience('exp3')">Experiencia 3</button>
+        </div>
+
+        <!-- Weekly Details Section -->
+        <section id="weekly-details" class="glass-card rounded-xl p-4 sm:p-6 md:p-8">
+            <h2 id="experience-title" class="text-xl sm:text-2xl md:text-3xl font-extrabold mb-1 text-white"></h2>
+            <p id="experience-subtitle" class="text-base sm:text-lg text-duoc-yellow mb-6"></p>
+            
+            <div id="weeks-nav" class="mb-8">
+                <!-- Week buttons will be dynamically inserted here -->
+            </div>
+            
+            <div id="week-content" class="min-h-[300px]">
+                <!-- Week content will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 text-center text-gray-500 text-sm main-content">
+        <p>Desarrollado por José Peña</p>
+        <div class="mt-2">
+            <a href="#" onclick="openCopyrightModal(event)" class="hover:text-duoc-yellow transition">Derechos de Autor</a>
+            <span class="mx-2">|</span>
+            <a href="#" onclick="openResponsibilitiesModal(event)" class="hover:text-duoc-yellow transition">Responsabilidades</a>
+        </div>
+    </footer>
+
+    <!-- Options Modal -->
+    <div id="options-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeOptionsModal()">&times;</span>
+            <h2 class="text-3xl text-center font-bold mb-6">Potenciar Ideas</h2>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <button id="generate-forum-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg transform hover:-translate-y-1 inline-flex items-center space-x-2 group w-full md:w-auto justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span>Activación de Foro</span>
+                </button>
+                <button id="generate-session-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg transform hover:-translate-y-1 inline-flex items-center space-x-2 group w-full md:w-auto justify-center">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <span>Esquema de Sesión</span>
+                </button>
+                <button id="generate-challenge-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg transform hover:-translate-y-1 inline-flex items-center space-x-2 group w-full md:w-auto justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9"></path></svg>
+                    <span>Desafío Pro</span>
+                </button>
+                 <button id="generate-feedback-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg transform hover:-translate-y-1 inline-flex items-center space-x-2 group w-full md:w-auto justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944A12.02 12.02 0 0012 21a11.955 11.955 0 008.618-3.04 11.955 11.955 0 00-3.04-8.618z"></path></svg>
+                    <span>Banco de Feedback</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Input Modal -->
+    <div id="feedback-input-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeFeedbackInputModal()">&times;</span>
+            <h2 id="feedback-input-title" class="text-3xl text-center font-bold mb-4">Retroalimentación Asistida</h2>
+            <p class="mb-6 text-center text-gray-400">Añade tus observaciones (opcional) para personalizar la retroalimentación. Si lo dejas en blanco, se generará una propuesta por defecto.</p>
+            <textarea id="teacher-observations" class="w-full h-32 p-3 bg-black border border-gray-600 rounded-lg focus:ring-2 focus:ring-duoc-yellow focus:border-duoc-yellow transition duration-300" placeholder="Ej: El título no está en negrita. La tabla de contenidos solo tiene 3 títulos..."></textarea>
+            <div class="flex flex-col md:flex-row gap-4 mt-6">
+                <button id="generate-custom-feedback-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg w-full">Generar Retroalimentación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenge Input Modal -->
+    <div id="challenge-input-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeChallengeInputModal()">&times;</span>
+            <h2 class="text-3xl text-center font-bold mb-4">Asistente de Desafíos</h2>
+            <p class="mb-6 text-center text-gray-400">Añade una idea o foco para el desafío (opcional). Si lo dejas en blanco, se generará una propuesta basada en los temas de la semana.</p>
+            <textarea id="teacher-challenge-input" class="w-full h-32 p-3 bg-black border border-gray-600 rounded-lg focus:ring-2 focus:ring-duoc-yellow focus:border-duoc-yellow transition duration-300" placeholder="Ej: Crear un informe de ventas para Holz Toys que incluya una tabla y un gráfico..."></textarea>
+            <div class="flex flex-col md:flex-row gap-4 mt-6">
+                <button id="generate-custom-challenge-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg w-full">Generar Desafío Pro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini AI Assistant Modal -->
+    <div id="gemini-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2 id="gemini-title" class="text-3xl text-center font-bold mb-4"></h2>
+            <p id="gemini-subtitle" class="mb-4 text-center text-gray-400">Generando propuesta para <strong id="modal-topic" class="text-duoc-yellow"></strong>...</p>
+            <div id="gemini-response" class="p-4 bg-black rounded-lg min-h-[200px] max-h-[60vh] overflow-y-auto border border-gray-700">
+                <div id="loader" class="flex justify-center items-center h-full">
+                    <div class="gradient-spinner"></div>
+                </div>
+            </div>
+            <div id="gemini-options" class="flex flex-col sm:flex-row gap-4 mt-6">
+                <!-- Botones dinámicos para desafíos -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Teacher Notes Modal -->
+    <div id="teacher-notes-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeTeacherNotesModal()">&times;</span>
+            <h2 class="text-3xl text-center font-bold mb-4">Apuntes del Docente</h2>
+            <p id="teacher-notes-subtitle" class="mb-6 text-center text-gray-400">Añade tus observaciones de la semana. Se guardarán en tu hoja de cálculo de Google.</p>
+            <textarea id="teacher-notes-input" class="w-full h-40 p-3 bg-black border border-gray-600 rounded-lg focus:ring-2 focus:ring-duoc-yellow focus:border-duoc-yellow transition duration-300" placeholder="Ej: La mayoría de los estudiantes tuvo dificultades con las referencias absolutas en Excel. Se recomienda un taller de reforzamiento..."></textarea>
+            <div class="flex flex-col md:flex-row gap-4 mt-6">
+                <button id="save-teacher-notes-btn" class="futuristic-btn font-bold py-3 px-6 rounded-lg w-full">Guardar Apuntes en Google Sheets</button>
+            </div>
+            <div id="teacher-notes-status" class="text-center mt-4 h-5"></div>
+        </div>
+    </div>
+
+    <!-- Copyright Modal -->
+    <div id="copyright-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeCopyrightModal()">&times;</span>
+            <h2 class="text-2xl text-center font-bold mb-4 text-gradient-yellow">Derechos de Autor</h2>
+            <div class="text-gray-300 space-y-4 text-sm">
+                <p>Todo el contenido, incluyendo textos, gráficos, logos y estructura, presente en esta plataforma es propiedad de Duoc UC o se utiliza con permiso para fines exclusivamente educativos dentro del marco de la asignatura Herramientas Tecnológicas I.</p>
+                <p>La reproducción, distribución o modificación no autorizada de cualquier material de este sitio está estrictamente prohibida. Los recursos generados mediante la integración de inteligencia artificial son herramientas de apoyo pedagógico y su uso debe adherirse a las normativas académicas de la institución.</p>
+                <p>&copy; 2024 Duoc UC. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsibilities Modal -->
+    <div id="responsibilities-modal" class="modal">
+        <div class="modal-content relative">
+            <span class="close-button" onclick="closeResponsibilitiesModal()">&times;</span>
+            <h2 class="text-2xl text-center font-bold mb-4 text-gradient-yellow">Responsabilidades y Uso de IA</h2>
+            <div class="text-gray-300 space-y-4 text-sm">
+                <p>Esta plataforma integra herramientas de inteligencia artificial (IA) para generar sugerencias de contenido, actividades y retroalimentación como un apoyo al proceso de enseñanza.</p>
+                <p><strong>Es responsabilidad del docente:</strong></p>
+                <ul class="list-disc list-outside pl-5 space-y-2">
+                    <li>Revisar, validar y ajustar todo el contenido generado por la IA para asegurar su pertinencia, precisión y alineación con los objetivos de aprendizaje de la semana.</li>
+                    <li>Utilizar las propuestas generadas como un punto de partida o inspiración, y no como un reemplazo del juicio pedagógico y profesional.</li>
+                    <li>Asegurar que el uso final de los materiales cumpla con los estándares de calidad y las directrices académicas de Duoc UC.</li>
+                </ul>
+                <p>El desarrollador no se hace responsable por el uso, interpretación o consecuencias derivadas de la implementación del contenido generado por la IA sin la debida supervisión y validación docente.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================================================================================
+        // URL DEL SCRIPT DE GOOGLE SHEETS
+        // ===================================================================================
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr6k_sMufG81HvMHmejxVkowtMDBTGcpigk58epn-R4LcF-z7ajCa2dyzz2tCc5SRnVQ/exec';
+
+        // Background Animation
+        const canvas = document.getElementById('background-animation');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x; this.y = y; this.directionX = directionX; this.directionY = directionY; this.size = size; this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = 'rgba(253, 185, 19, 0.1)';
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) { this.directionX = -this.directionX; }
+                if (this.y > canvas.height || this.y < 0) { this.directionY = -this.directionY; }
+                this.x += this.directionX; this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * .2) - .1;
+                let directionY = (Math.random() * .2) - .1;
+                particlesArray.push(new Particle(x, y, directionX, directionY, size));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+        
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            init();
+        });
+
+        init();
+        animate();
+
+        // Platform Logic
+        const recommendations = {
+            exp1: {
+                title: 'Experiencia 1',
+                subtitle: 'Creando documentos eficaces en Microsoft Word',
+                weeks: {
+                    semana1: {
+                        title: 'Semana 1: Comparando herramientas y conociendo Word',
+                        tematicas: ["Herramientas de comunicación", "Herramientas de productividad", "Microsoft Word: Opciones básicas", "Caso Holz Toys"],
+                        anuncio: "Familiarizar con <span class='keyword-cyan'>herramientas tecnológicas</span> y <span class='keyword-cyan'>formatos básicos</span> en Word.",
+                        foro: "<span class='keyword-yellow'>Cápsula de video</span> explicando la actividad de la semana. Enfatizar precisión en el formato.",
+                        sincronica: "Presentar asignatura. Demostrar aplicación de <span class='keyword-cyan'>formatos</span> en Word.",
+                        retroalimentacion: "Calificar entregas (<span class='keyword-yellow'>10/10</span>). Anotar sobre correcta aplicación de formatos y <span class='keyword-yellow'>mensaje personalizado</span>.",
+                        herramientas: ["Microsoft Word", "Office 365"],
+                        activityName: "Usando herramientas tecnológicas y escribiendo textos breves con Microsoft Word",
+                        activityType: "Actividad Formativa",
+                        activityIdentifier: "Actividad Formativa 1",
+                        rubrica: [
+                            "Cumple con la extensión del documento, incluyendo 2 párrafos de 6 líneas cada uno.",
+                            "Aplica el formato solicitado para el título, considerando centrado y con negrita en azul y tamaño 14.",
+                            "Aplica el formato de fuente solicitado para los párrafos incluyendo Tahoma de tamaño 12 y color gris.",
+                            "Utiliza las opciones de párrafo definidas considerando alineación justificada, interlineado 1,5 líneas."
+                        ]
+                    },
+                    semana2: {
+                        title: 'Semana 2: Creando documentos eficaces',
+                        tematicas: ["Secciones, columnas, saltos", "Encabezados y pies de página", "Listas y tablas", "Elementos gráficos", "Referencias y tablas de contenido", "Combinación de correspondencia"],
+                        anuncio: "<span class='keyword-yellow'>Actividad sumativa</span>: crear documento avanzado y usar <span class='keyword-cyan'>combinación de correspondencia</span>.",
+                        foro: "<span class='keyword-yellow'>Cápsula</span> explicando el entregable, demostrando herramientas avanzadas.",
+                        sincronica: "<span class='keyword-yellow'>Caso práctico</span> aplicando paso a paso: <span class='keyword-cyan'>secciones</span>, <span class='keyword-cyan'>tablas</span>, <span class='keyword-cyan'>gráficos</span>, <span class='keyword-cyan'>referencias</span>, etc.",
+                        retroalimentacion: "Calificar según <span class='keyword-yellow'>rúbrica</span>. Anotar sobre aplicación de formatos, TdC y correspondencia.",
+                        herramientas: ["Microsoft Word"],
+                        activityName: "Creando documentos con Microsoft Word para Holz Toys",
+                        activityType: "Actividad Sumativa",
+                        activityIdentifier: "Actividad Sumativa 1",
+                        rubrica: [
+                            "Cumple con la extensión del documento (mínimo 5 y máximo 7 páginas).",
+                            "Aplica el formato de texto solicitado (fuente, tamaño, color, interlineado y alineación).",
+                            "Incluye en la primera página una portada con un 'Cuadro de texto'. El resto del documento contiene encabezados con su nombre y apellido, y números de página.",
+                            "Inserta una 'Tabla de Contenidos' en la página 2 que incluye al menos 5 títulos del documento.",
+                            "Crea una tabla con las columnas y filas solicitadas dentro del documento.",
+                            "Incorpora una lista numerada y una lista con viñetas dentro del documento.",
+                            "Incluye imágenes en las que se ha cambiado la opción predeterminada 'en línea con el texto'.",
+                            "Inserta en la última página una tabla de referencias bibliográficas de las fuentes utilizadas (al menos 3 fuentes), en formato APA.",
+                            "Combina dentro de la invitación, todos los campos disponibles en el listado de datos.",
+                            "Crea una regla para diferenciar, de acuerdo al género, al menos una palabra de la invitación."
+                        ]
+                    }
+                }
+            },
+            exp2: {
+                title: 'Experiencia 2',
+                subtitle: 'Diseñando presentaciones atractivas en Microsoft PowerPoint',
+                weeks: {
+                    semana3: {
+                        title: 'Semana 3: Diagramando la presentación',
+                        tematicas: ["Conceptos de una buena presentación", "Manejo de diapositivas", "Formato de texto, formas e imágenes", "Patrón de diapositivas", "Colaboración en Microsoft Teams"],
+                        anuncio: "<span class='keyword-yellow'>Actividad formativa grupal</span>: colaborar en una presentación para Holz Toys usando <span class='keyword-cyan'>PowerPoint</span> y <span class='keyword-cyan'>Teams</span>.",
+                        foro: "Cápsula sobre cómo crear una <span class='keyword-cyan'>presentación impactante</span>, destacando diseño y <span class='keyword-cyan'>colaboración</span>.",
+                        sincronica: "Demostrar creación de presentación, uso de <span class='keyword-cyan'>plantillas</span>, formato de elementos y colaboración en <span class='keyword-cyan'>Teams</span>.",
+                        retroalimentacion: "Calificar entregas (<span class='keyword-yellow'>10/10</span>). Anotar sobre <span class='keyword-cyan'>diseño</span>, <span class='keyword-cyan'>formato</span> y <span class='keyword-cyan'>colaboración</span>. Mensaje personalizado.",
+                        herramientas: ["Microsoft PowerPoint", "Microsoft Teams"],
+                        activityName: "Creando una presentación colaborativa con Microsoft PowerPoint para Holz Toys",
+                        activityType: "Actividad Formativa Grupal",
+                        activityIdentifier: "Actividad Formativa 2",
+                        rubrica: [
+                            "Crean un equipo en Microsoft Teams en el que están inscritos todos los integrantes.",
+                            "Utilizan una plantilla en línea acorde con el tema de la presentación.",
+                            "Cumplen con la extensión de la presentación considerando 6 diapositivas en total.",
+                            "Emplean hipervínculos entre las diapositivas 3 a la 6 con el fin de volver a la diapositiva 2 y navegar entre ellas.",
+                            "Incluyen los parámetros solicitados en las 4 diapositivas de referentes visuales (1 título, 3 imágenes y texto descriptivo).",
+                            "Existe registro de trabajo y modificaciones en la presentación de parte de todos los miembros del equipo (verificable desde el historial del archivo)."
+                        ]
+                    },
+                    semana4: {
+                        title: 'Semana 4: Diseñando con impacto visual',
+                        tematicas: ["Tablas y Gráficos", "Videos y SmartArt", "Modelos 3D", "Transiciones y Animaciones"],
+                        anuncio: "<span class='keyword-yellow'>Actividad sumativa grupal</span>: potenciar presentación con <span class='keyword-cyan'>elementos gráficos</span> y <span class='keyword-cyan'>dinamismo</span>.",
+                        foro: "Video explicando cómo los <span class='keyword-cyan'>elementos gráficos</span> y <span class='keyword-cyan'>animaciones</span> potencian el mensaje.",
+                        sincronica: "Demostrar inserción de <span class='keyword-cyan'>tablas</span>, <span class='keyword-cyan'>gráficos</span>, <span class='keyword-cyan'>videos</span>, <span class='keyword-cyan'>SmartArt</span>, <span class='keyword-cyan'>3D</span> y aplicar <span class='keyword-cyan'>animaciones</span>.",
+                        retroalimentacion: "Calificar según <span class='keyword-yellow'>rúbrica</span>. Anotar sobre la implementación de elementos gráficos y animaciones.",
+                        herramientas: ["Microsoft PowerPoint", "Microsoft Teams"],
+                        activityName: "Mejorando la presentación colaborativa para Holz Toys",
+                        activityType: "Actividad Sumativa Grupal",
+                        activityIdentifier: "Actividad Sumativa 2",
+                        rubrica: [
+                            "Utiliza una plantilla en línea, con un estilo acorde al tema de la presentación.",
+                            "Incorpora un gráfico sencillo, circular o de columna, de algún tema acorde con el mercado del juguete.",
+                            "Inserta un video desde YouTube que muestra el proceso creativo detrás de la producción de juguetes de madera.",
+                            "Crea un esquema SmartArt que permite resumir los principales pasos del proceso mostrado en el video YouTube.",
+                            "Incorpora transiciones en todas las diapositivas, utilizando un máximo de dos efectos distintos.",
+                            "Emplea animaciones en al menos dos diapositivas, utilizando dos estilos distintos de efectos de animación, como máximo.",
+                            "Añade hipervínculos, que permiten acceder a todas las diapositivas de la presentación y retornar a la segunda diapositiva.",
+                            "Incorpora imágenes en al menos cuatro diapositivas de acuerdo a lo solicitado (alineadas en la parte inferior y distribuidas horizontalmente).",
+                            "Demuestra la participación equitativa de todos los integrantes del equipo, en el historial del archivo compartido.",
+                            "Genera código de equipo en Teams y lo envía por AVA."
+                        ]
+                    }
+                }
+            },
+            exp3: {
+                title: 'Experiencia 3',
+                subtitle: 'Realizando cálculos eficientes en Microsoft Excel',
+                weeks: {
+                    semana5: {
+                        title: 'Semana 5: Preparando la hoja de cálculo',
+                        tematicas: ["Concepto de Hoja de Cálculo y Libro", "Trabajo con hojas y celdas", "Tipos de datos", "Formatos de números y celdas"],
+                        anuncio: "<span class='keyword-yellow'>Actividad formativa</span>: crear una <span class='keyword-cyan'>hoja de cálculo</span> simple aplicando <span class='keyword-cyan'>formatos básicos</span>.",
+                        foro: "Cápsula explicando la creación y edición de una <span class='keyword-cyan'>hoja de cálculo</span> básica. Enfatizar organización.",
+                        sincronica: "Demostrar cómo insertar hojas, cambiar nombres, ingresar datos y aplicar <span class='keyword-cyan'>formatos</span>.",
+                        retroalimentacion: "Calificar entregas (<span class='keyword-yellow'>10/10</span>). Anotar sobre aplicación de formatos y organización.",
+                        herramientas: ["Microsoft Excel"],
+                        activityName: "Planificando la producción de Holz Toys con Microsoft Excel",
+                        activityType: "Actividad Formativa",
+                        activityIdentifier: "Actividad Formativa 3",
+                        rubrica: [
+                            "Organiza la información que se encuentra en la Hoja 1, dividiéndola en dos hojas, con los nombres de insumos y herramientas.",
+                            "Aplica un color de etiqueta diferente a cada hoja.",
+                            "Asigna un color de relleno a todas las celdas de la hoja.",
+                            "Asigna un color de relleno diferente al rango de las celdas que tienen contenido.",
+                            "Aplica bordes de un color diferente a negro al rango de las celdas que tienen contenido.",
+                            "Aplica negrita a los textos de los encabezados de cada columna.",
+                            "Aplica formato contabilidad, con signo $ y sin decimales a las celdas de la columna que contiene los valores.",
+                            "Aplica formato personalizado a los datos de la columna 'Fecha de cotización' de forma que aparezca el día abreviado, el número del día y el mes abreviado. Ej: 'mar, 29 de nov'."
+                        ]
+                    },
+                    semana6: {
+                        title: 'Semana 6: Realizando primeros cálculos',
+                        tematicas: ["Manipulación de datos (copiar, pegar, autorrelleno)", "Inserción/eliminación de filas/columnas", "Fórmulas, referencias, operadores aritméticos, porcentajes"],
+                        anuncio: "<span class='keyword-yellow'>Actividad formativa</span>: aplicar <span class='keyword-cyan'>fórmulas básicas</span> y manipular datos para gestionar stock y precios.",
+                        foro: "Video explicando la implementación de <span class='keyword-cyan'>cálculos básicos</span>. Enfatizar el signo '=' y <span class='keyword-cyan'>referencias</span>.",
+                        sincronica: "Demostrar manipulación de datos y construcción de <span class='keyword-cyan'>fórmulas</span> desde cero.",
+                        retroalimentacion: "Calificar entregas (<span class='keyword-yellow'>10/10</span>). Anotar errores en <span class='keyword-cyan'>fórmulas</span> o <span class='keyword-cyan'>referencias</span>. Sugerir optimizaciones.",
+                        herramientas: ["Microsoft Excel"],
+                        activityName: "Manejando el stock y precios con Microsoft Excel",
+                        activityType: "Actividad Formativa",
+                        activityIdentifier: "Actividad Formativa 4",
+                        rubrica: [
+                            "Elimina la celda B2, seleccionando la opción 'desplazar hacia arriba'.",
+                            "Copia el formato de las celdas de la fila 2, en las demás filas de la tabla.",
+                            "Utiliza la multiplicación del precio Neto por 19% en la columna F, para calcular el IVA.",
+                            "Realiza la suma del Precio Neto y el IVA en la columna G, para calcular el Precio de Venta.",
+                            "Utiliza operadores relacionales en la columna H, para verificar si hay Stock suficiente, comprobando si la Cantidad en Bodega es mayor o igual a 10.",
+                            "Ajusta el ancho de todas las columnas de la tabla de acuerdo al contenido, para ver la información completa."
+                        ]
+                    },
+                    semana7: {
+                        title: 'Semana 7: Trabajando con funciones',
+                        tematicas: ["Concepto de Funciones", "Funciones de cálculo: SUMA, PROMEDIO, MAX, MIN", "Funciones de fecha y hora: HOY, AHORA", "Funciones de cuenta: CONTAR, CONTARA"],
+                        anuncio: "<span class='keyword-yellow'>Actividad formativa</span>: usar <span class='keyword-cyan'>funciones</span> para realizar cálculos rápidos y eficientes.",
+                        foro: "Cápsula explicando el uso de <span class='keyword-cyan'>funciones</span> para analizar datos. Enfatizar <span class='keyword-cyan'>sintaxis</span>.",
+                        sincronica: "Demostrar cómo insertar <span class='keyword-cyan'>funciones</span>, seleccionar <span class='keyword-cyan'>argumentos</span> e interpretar resultados.",
+                        retroalimentacion: "Calificar entregas (<span class='keyword-yellow'>10/10</span>). Anotar sobre el uso correcto de <span class='keyword-cyan'>funciones</span> y <span class='keyword-cyan'>rangos</span>.",
+                        herramientas: ["Microsoft Excel"],
+                        activityName: "Estimando los costos de mi Pyme con Microsoft Excel",
+                        activityType: "Actividad Formativa",
+                        activityIdentifier: "Actividad Formativa 5",
+                        rubrica: [
+                            "Realiza una función HOY en la celda J4 y una función AHORA en la celda J6.",
+                            "Ingresa una función CONTAR en la celda J8 y CONTAR.BLANCO en la celda J10, trabajando con los datos de la columna C.",
+                            "Utiliza una función CONTARA en la celda J12, tomando los datos de la columna B.",
+                            "Aplica una función MAX en la celda J14 y MIN en la celda J16, utilizando los datos de la columna G.",
+                            "Realiza una función SUMA en la celda J18, tomando los datos de la columna D.",
+                            "Utiliza una función PROMEDIO, en la celda J20, trabajando con los datos de la columna F."
+                        ]
+                    },
+                    semana8: {
+                        title: 'Semana 8: Cálculos eficientes y reportes',
+                        tematicas: ["Referencias relativas y absolutas", "Funciones de Texto", "Herramienta Texto en Columnas", "Gráficos en Excel"],
+                        anuncio: "<span class='keyword-yellow'>Actividad sumativa</span>: aplicar <span class='keyword-cyan'>referencias</span>, <span class='keyword-cyan'>funciones de texto</span> y crear <span class='keyword-cyan'>gráficos</span>.",
+                        foro: "Video explicando la aplicación de <span class='keyword-cyan'>referencias absolutas</span>, <span class='keyword-cyan'>funciones de texto</span> y creación de <span class='keyword-cyan'>gráficos</span>.",
+                        sincronica: "Demostrar uso de <span class='keyword-cyan'>referencias absolutas</span>, <span class='keyword-cyan'>funciones de texto</span> y generación de <span class='keyword-cyan'>gráficos</span>.",
+                        retroalimentacion: "Calificar según <span class='keyword-yellow'>rúbrica</span>. Anotar sobre la correcta aplicación de <span class='keyword-cyan'>referencias</span>, <span class='keyword-cyan'>funciones</span> y <span class='keyword-cyan'>gráficos</span>.",
+                        herramientas: ["Microsoft Excel"],
+                        activityName: "Generando Reportes para mi Pyme con Microsoft Excel",
+                        activityType: "Actividad Sumativa",
+                        activityIdentifier: "Actividad Sumativa 3",
+                         rubrica: [
+                            "Utiliza la función EXTRAE para obtener el año.",
+                            "Aplica la función CONCATENAR o el operador '&' para unir columnas.",
+                            "Calcula el IVA multiplicando el Precio Neto por 19%.",
+                            "Calcula el promedio de los 'Precios de Venta' con la función PROMEDIO.",
+                            "Emplea la función MAX para encontrar el valor más alto de los 'Precios de Venta'.",
+                            "Calcula 'Exportaciones en pesos' usando una referencia absoluta a la celda del valor del dólar.",
+                            "Calcula el total de 'Exportaciones en pesos' con la función SUMA.",
+                            "Utiliza la función CONTAR o CONTARA para contar la cantidad de países.",
+                            "Crea un gráfico que muestra 'Países' y 'Exportaciones en pesos' con un título específico."
+                        ]
+                    }
+                }
+            }
+        };
+
+        function showExperience(expId) {
+            document.querySelectorAll('.experience-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${expId}`).classList.add('active');
+
+            const experience = recommendations[expId];
+            document.getElementById('experience-title').textContent = experience.title;
+            document.getElementById('experience-subtitle').textContent = experience.subtitle;
+
+            const weeksNav = document.getElementById('weeks-nav');
+            weeksNav.className = 'w-full overflow-x-auto pb-3 no-scrollbar mb-8';
+            const innerNav = document.createElement('div');
+            innerNav.className = 'flex space-x-3';
+            weeksNav.innerHTML = '';
+            weeksNav.appendChild(innerNav);
+
+            let firstWeekKey = Object.keys(experience.weeks)[0];
+            for (const weekKey in experience.weeks) {
+                const week = experience.weeks[weekKey];
+                const button = document.createElement('button');
+                button.className = 'week-button py-2 px-4 rounded-lg font-semibold';
+                button.textContent = week.title.split(':')[0]; 
+                button.id = `week-btn-${weekKey}`;
+                button.onclick = () => showWeek(expId, weekKey);
+                innerNav.appendChild(button);
+            }
+
+            if (firstWeekKey) {
+                showWeek(expId, firstWeekKey);
+            }
+        }
+
+        function showWeek(expId, weekKey) {
+            document.querySelectorAll('.week-button').forEach(btn => btn.classList.remove('active'));
+            const activeButton = document.getElementById(`week-btn-${weekKey}`);
+            activeButton.classList.add('active');
+
+            const navContainer = document.getElementById('weeks-nav');
+            if (navContainer.scrollWidth > navContainer.clientWidth) {
+                const scrollPosition = activeButton.offsetLeft - 16; 
+                navContainer.scrollTo({
+                    left: scrollPosition,
+                    behavior: 'smooth'
+                });
+            }
+
+            const week = recommendations[expId].weeks[weekKey];
+            const weekContent = document.getElementById('week-content');
+            
+            weekContent.innerHTML = `
+                <div class="content-fade-in">
+                    <h3 class="text-xl md:text-2xl font-bold mb-6 text-white">${week.title}</h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                        <div class="lg:col-span-1 flex flex-col gap-4">
+                            <div class="glass-card info-card p-4 rounded-lg flex flex-col">
+                                <div class="flex items-center mb-3">
+                                    <svg class="w-6 h-6 text-duoc-yellow mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                    <h4 class="font-bold text-lg text-duoc-yellow">Informe de Misión</h4>
+                                </div>
+                                <p class="text-gray-400 mb-4 text-sm">Objetivos y puntos críticos para la semana.</p>
+                                <div class="border-t border-gray-700 pt-3 mt-auto">
+                                    <h5 class="font-semibold text-white mb-2 text-sm">Temáticas Clave:</h5>
+                                    <ul class="list-disc list-outside text-gray-300 space-y-1.5 pl-5 text-sm">
+                                        ${week.tematicas.map(t => `<li>${t}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                             <div class="glass-card info-card p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-duoc-yellow mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                    <h5 class="font-bold text-lg text-duoc-yellow">Arsenal Tecnológico</h5>
+                                </div>
+                                <p class="text-gray-200 font-medium text-base mt-1">${week.herramientas.join(', ')}</p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="glass-card info-card p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-duoc-yellow mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.514C18.335 1.802 17.633 1 16.5 1H4a1 1 0 00-1 1v9.438l2.436 2.25z"></path></svg>
+                                    <h5 class="font-semibold text-white">Anuncio Semanal</h5>
+                                </div>
+                                <p class="text-gray-400 text-sm pl-7">${week.anuncio}</p>
+                            </div>
+                            <div class="glass-card info-card p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-duoc-yellow mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                    <h5 class="font-semibold text-white">Foro de Consultas</h5>
+                                </div>
+                                <p class="text-gray-400 text-sm pl-7">${week.foro}</p>
+                            </div>
+                            <div class="glass-card info-card p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-duoc-yellow mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    <h5 class="font-semibold text-white">Sesión Sincrónica</h5>
+                                </div>
+                                <p class="text-gray-400 text-sm pl-7">${week.sincronica}</p>
+                            </div>
+                            <div class="glass-card info-card p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-duoc-yellow mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <h5 class="font-semibold text-white">Retroalimentación</h5>
+                                </div>
+                                <p class="text-gray-400 text-sm pl-7">${week.retroalimentacion}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row flex-wrap justify-center gap-4">
+                        <button onclick="showCreativeOptions('${weekKey}', '${expId}')" class="w-full sm:w-auto futuristic-btn font-bold py-3 px-8 rounded-lg transform hover:-translate-y-1 inline-flex items-center justify-center space-x-2 group">
+                            <svg class="w-5 h-5 transition-transform duration-300 transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                            <span>Potenciar Ideas</span>
+                        </button>
+                        <button onclick="showTeacherNotesModal('${weekKey}', '${expId}')" class="w-full sm:w-auto futuristic-btn font-bold py-3 px-8 rounded-lg transform hover:-translate-y-1 inline-flex items-center justify-center space-x-2 group">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <span>Apuntes del Docente</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showExperience('exp1');
+        });
+
+        const mainContentElements = document.querySelectorAll('.main-content');
+        
+        function openModal(title, topic) {
+            document.getElementById('gemini-title').innerHTML = title;
+            document.getElementById('modal-topic').textContent = topic;
+            document.getElementById('gemini-subtitle').style.display = 'block';
+            document.getElementById('gemini-response').innerHTML = `<div id="loader" class="flex justify-center items-center h-full"><div class="gradient-spinner"></div></div>`;
+            document.getElementById('gemini-options').innerHTML = '';
+            document.getElementById('gemini-modal').style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+        }
+
+        function closeModal() {
+            document.getElementById('gemini-modal').style.display = 'none';
+            mainContentElements.forEach(el => el.classList.remove('content-blur'));
+        }
+
+        function showCreativeOptions(weekKey, expId) {
+            const optionsModal = document.getElementById('options-modal');
+            optionsModal.style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+
+            document.getElementById('generate-forum-btn').onclick = () => generateForumPost(weekKey, expId);
+            document.getElementById('generate-session-btn').onclick = () => generateSessionOutline(weekKey, expId);
+            document.getElementById('generate-challenge-btn').onclick = () => showChallengeInputModal(weekKey, expId);
+            document.getElementById('generate-feedback-btn').onclick = () => showFeedbackInputModal(weekKey, expId);
+        }
+
+        function closeOptionsModal() {
+            document.getElementById('options-modal').style.display = 'none';
+            if (document.getElementById('gemini-modal').style.display !== 'flex' && document.getElementById('feedback-input-modal').style.display !== 'flex' && document.getElementById('challenge-input-modal').style.display !== 'flex') {
+                mainContentElements.forEach(el => el.classList.remove('content-blur'));
+            }
+        }
+
+        function showFeedbackInputModal(weekKey, expId) {
+            closeOptionsModal();
+            const feedbackModal = document.getElementById('feedback-input-modal');
+            feedbackModal.style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+            
+            document.getElementById('teacher-observations').value = '';
+
+            document.getElementById('generate-custom-feedback-btn').onclick = () => {
+                const observations = document.getElementById('teacher-observations').value;
+                generateFeedbackBank(weekKey, expId, observations);
+            };
+        }
+
+        function closeFeedbackInputModal() {
+            document.getElementById('feedback-input-modal').style.display = 'none';
+            mainContentElements.forEach(el => el.classList.remove('content-blur'));
+        }
+
+        function showChallengeInputModal(weekKey, expId) {
+            closeOptionsModal();
+            const challengeModal = document.getElementById('challenge-input-modal');
+            challengeModal.style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+            
+            document.getElementById('teacher-challenge-input').value = '';
+
+            document.getElementById('generate-custom-challenge-btn').onclick = () => {
+                const teacherInput = document.getElementById('teacher-challenge-input').value;
+                validateAndGenerateChallenge(weekKey, expId, teacherInput);
+            };
+        }
+
+        function closeChallengeInputModal() {
+            document.getElementById('challenge-input-modal').style.display = 'none';
+            mainContentElements.forEach(el => el.classList.remove('content-blur'));
+        }
+        
+        function showTeacherNotesModal(weekKey, expId) {
+            const notesModal = document.getElementById('teacher-notes-modal');
+            const weekData = recommendations[expId].weeks[weekKey];
+            document.getElementById('teacher-notes-subtitle').textContent = `Añade tus observaciones para la ${weekData.title.split(':')[0]}. Se guardarán en tu hoja de cálculo.`;
+            document.getElementById('teacher-notes-input').value = '';
+            document.getElementById('teacher-notes-status').innerHTML = '';
+            notesModal.style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+
+            document.getElementById('save-teacher-notes-btn').onclick = () => saveTeacherNotes(weekKey, expId);
+        }
+
+        function closeTeacherNotesModal() {
+            document.getElementById('teacher-notes-modal').style.display = 'none';
+            mainContentElements.forEach(el => el.classList.remove('content-blur'));
+        }
+
+        function openCopyrightModal(event) {
+            event.preventDefault();
+            document.getElementById('copyright-modal').style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+        }
+
+        function closeCopyrightModal() {
+            document.getElementById('copyright-modal').style.display = 'none';
+            mainContentElements.forEach(el => el.classList.remove('content-blur'));
+        }
+
+        function openResponsibilitiesModal(event) {
+            event.preventDefault();
+            document.getElementById('responsibilities-modal').style.display = 'flex';
+            mainContentElements.forEach(el => el.classList.add('content-blur'));
+        }
+
+        function closeResponsibilitiesModal() {
+            document.getElementById('responsibilities-modal').style.display = 'none';
+            mainContentElements.forEach(el => el.classList.remove('content-blur'));
+        }
+
+        async function saveTeacherNotes(weekKey, expId) {
+            const notesInput = document.getElementById('teacher-notes-input');
+            const statusDiv = document.getElementById('teacher-notes-status');
+            const notesText = notesInput.value.trim();
+
+            if (GOOGLE_SCRIPT_URL === '') {
+                statusDiv.innerHTML = `<span style="color: #f87171;">Error: La URL del script de Google no está configurada.</span>`;
+                return;
+            }
+
+            if (notesText === '') {
+                statusDiv.innerHTML = `<span style="color: #fdb913;">Por favor, escribe un apunte antes de guardar.</span>`;
+                return;
+            }
+
+            statusDiv.innerHTML = `<span style="color: #00F2FE;">Guardando...</span>`;
+
+            const payload = {
+                experience: recommendations[expId].title,
+                week: recommendations[expId].weeks[weekKey].title,
+                notes: notesText
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                statusDiv.innerHTML = `<span style="color: #4ade80;">¡Apunte guardado con éxito!</span>`;
+                notesInput.value = '';
+                setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                statusDiv.innerHTML = `<span style="color: #f87171;">Error al guardar. Revisa la consola para más detalles.</span>`;
+            }
+        }
+
+
+        async function makeApiCall(prompt, isJson = false) {
+             try {
+                 let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                 const payload = { contents: chatHistory };
+                 
+                 if (isJson) {
+                    payload.generationConfig = {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                isValid: { type: "BOOLEAN" },
+                                correctedTopic: { type: "STRING" },
+                                reason: { type: "STRING" },
+                                isPartial: { type: "BOOLEAN" },
+                                missingTopics: { type: "ARRAY", items: { type: "STRING" } }
+                            }
+                        }
+                    };
+                 }
+
+                 const apiKey = "AIzaSyApCSCXMRoALa9HzRqpdKLf_U4vyZZfANI"; 
+                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                 
+                 const response = await fetch(apiUrl, {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify(payload)
+                 });
+
+                 if (!response.ok) {
+                     throw new Error(`Error en la API: ${response.statusText}`);
+                 }
+
+                 const result = await response.json();
+                 
+                 if (result.candidates && result.candidates.length > 0 &&
+                     result.candidates[0].content && result.candidates[0].content.parts &&
+                     result.candidates[0].content.parts.length > 0) {
+                     const text = result.candidates[0].content.parts[0].text;
+                     return isJson ? JSON.parse(text) : text;
+                 } else {
+                    throw new Error('Respuesta de la API inválida.');
+                 }
+
+             } catch (error) {
+                 console.error("Error al llamar a la API de Gemini:", error);
+                 document.getElementById('gemini-response').textContent = 'Ocurrió un error al generar las recomendaciones. Por favor, intenta de nuevo más tarde.';
+                 return null;
+             }
+        }
+
+        function generateForumPost(weekKey, expId) {
+            closeOptionsModal();
+            const weekData = recommendations[expId].weeks[weekKey];
+            const experienceData = recommendations[expId];
+            
+            openModal('Asistente <span class="futuristic-text-gradient">Creativo</span>', weekData.title.split(':')[0]);
+            
+            const prompt = `
+                Actúa como un experto en diseño instruccional para Duoc UC. Tu tarea es generar el texto de activación para un foro de consultas, siguiendo una estructura HTML específica al 100%.
+
+                **Contexto:**
+                - **Asignatura:** Herramientas Tecnológicas I
+                - **Semana:** ${weekData.title.split(':')[0]} (${weekKey})
+                - **Experiencia de Aprendizaje:** ${experienceData.subtitle}
+                - **Temáticas de la semana:** ${weekData.tematicas.join(', ')}
+
+                **Instrucciones Clave:**
+                1.  Crea un **objetivo de la semana** conciso y claro.
+                2.  Genera una **sugerencia de recurso** (video, juego, etc.) que sea conceptual y esté directamente relacionada con las temáticas.
+                3.  Crea **2 o 3 preguntas para el debate** que sean **accesibles, interesantes y que inviten a la participación**. Deben estar directamente relacionadas con las **temáticas de la semana** o con el **recurso conceptual sugerido**. El objetivo es que los estudiantes puedan conectar los conceptos con situaciones prácticas y realistas sin sentirse intimidados. Evita un lenguaje demasiado académico como "maestría" o "especialista". Por ejemplo, en lugar de una pregunta compleja, formula algo como: "Después de ver el video sobre [tema], ¿en qué situación de tu día a día podrías aplicar una técnica similar para organizarte mejor?".
+                4.  Crea una **frase motivacional** corta y original.
+                5.  Rellena la siguiente plantilla HTML. **NO alteres la estructura, clases, iconos o formato HTML de la plantilla.** Tu respuesta final debe ser **solamente el código HTML puro**, sin ningún texto introductorio, sin la palabra 'html' al inicio y sin usar \`\`\`html para encapsularlo.
+
+                **Plantilla HTML (Úsala textualmente):**
+                <div style="font-family: Inter, sans-serif; color: #e2e8f0; font-size: 14px; line-height: 1.6;">
+                    <p style="margin-bottom: 1.5rem;">¡Hola, estimadas y estimados estudiantes! 👋</p>
+                    <p style="margin-bottom: 1.5rem;">Les doy la más cordial bienvenida al foro de consultas de la <strong>${weekData.title.split(':')[0]}</strong>. Durante estos días, este espacio estará disponible para compartir dudas, reflexiones y experiencias sobre los contenidos de la <strong>${experienceData.title}: ${experienceData.subtitle}</strong>.</p>
+                    <p style="margin-bottom: 1.5rem;">En esta semana, nos enfocaremos en ${weekData.tematicas.join(', ').toLowerCase()}.</p>
+                    <p style="margin-bottom: 1.5rem;"><strong style="color: #fdb913;">🔍 Objetivo de la semana:</strong> [CONTENIDO_GENERADO: Crea aquí el objetivo de la semana.]</p>
+                    <p style="margin-bottom: 1.5rem;"><strong style="color: #fdb913;">💡 Para apoyar su aprendizaje, se han preparado los siguientes recursos:</strong></p>
+                    <div style="border-left: 2px solid #fdb913; padding-left: 1rem; margin-bottom: 1.5rem;">
+                        [CONTENIDO_GENERADO: Crea aquí un título y descripción para un recurso conceptual. Usa emojis.]
+                    </div>
+                    <p style="margin-bottom: 1.5rem;">Les recomiendo revisarlos con atención, ya que facilitarán la comprensión de los temas de esta semana.</p>
+                    <p style="margin-bottom: 1.5rem;">Luego de revisar el material y para dinamizar el foro, los invito a reflexionar y comentar en este espacio:</p>
+                    <ul style="list-style: none; padding-left: 0; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        [CONTENIDO_GENERADO: Crea aquí 2 o 3 preguntas de debate accesibles y prácticas en formato <li>📌 Pregunta...</li>]
+                    </ul>
+                    <p style="margin-bottom: 1.5rem;">Los animo a participar activamente, compartir sus inquietudes y aprender en conjunto. Sus aportes enriquecen el aprendizaje colectivo.</p>
+                    <p style="margin-bottom: 1.5rem; font-style: italic; color: #a0aec0;">[CONTENIDO_GENERADO: Crea aquí la frase motivacional final.]</p>
+                    <p style="margin-bottom: 0;">¡Éxito en la misión de esta semana!</p>
+                    <p style="margin-bottom: 0;">Atentamente, Tu Docente.</p>
+                </div>
+            `;
+            makeApiCall(prompt).then(response => {
+                if(response) document.getElementById('gemini-response').innerHTML = response;
+            });
+        }
+
+        function generateSessionOutline(weekKey, expId) {
+            closeOptionsModal();
+            const weekData = recommendations[expId].weeks[weekKey];
+            
+            openModal('Esquema de Sesión <span class="futuristic-text-gradient">Sincrónica</span>', weekData.title.split(':')[0]);
+
+            const prompt = `
+                Actúa como un experto en diseño instruccional para Duoc UC. Tu tarea es generar un esquema detallado y visualmente atractivo para una sesión sincrónica, usando una estructura HTML específica.
+
+                **Contexto:**
+                - **Asignatura:** Herramientas Tecnológicas I
+                - **Semana:** ${weekData.title}
+                - **Temáticas:** ${weekData.tematicas.join(', ')}
+                - **Actividad de la semana:** "${weekData.activityName}", de tipo ${weekData.activityType}.
+
+                **Instrucciones:**
+                1.  Crea una **actividad rompehielos** (Activación) que incluya una pregunta inicial para medir el conocimiento previo de los estudiantes.
+                2.  Estructura el **desarrollo de contenidos** en 3 a 4 puntos lógicos.
+                3.  Propón una **actividad práctica guiada** que los estudiantes puedan realizar durante la sesión.
+                4.  En la sección de **reflexión final**, crea una pregunta, consejo o reflexión que sea **única y relevante para las temáticas específicas de esta semana**, diseñada para que los estudiantes conecten el aprendizaje con su futuro profesional.
+                5.  Redacta una **síntesis de cierre** que resuma los 2 o 3 aprendizajes más importantes.
+                6.  Resalta palabras clave con los colores especificados en la plantilla.
+                7.  Rellena la siguiente plantilla HTML. **NO alteres la estructura, clases o formato.** El resultado debe ser únicamente el bloque de código HTML, sin marcadores de código.
+
+                **Plantilla HTML (Úsala textualmente):**
+                <div style="font-family: Inter, sans-serif; color: #e2e8f0; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 1.5rem;">
+                    
+                    <div style="border-left: 2px solid #00F2FE; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #00F2FE; margin: 0 0 0.5rem 0;">🚀 Check-in Inicial / Activación (5 min)</h4>
+                        <p style="margin: 0;">[CONTENIDO_GENERADO: Describe aquí la actividad rompehielos, incluyendo la pregunta inicial de reflexión sobre cómo llegan a la sesión.]</p>
+                    </div>
+
+                    <div style="border-left: 2px solid #fdb913; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #fdb913; margin: 0 0 0.5rem 0;">💻 Desarrollo de Contenidos (25-30 min)</h4>
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <li><strong>1. </strong> [CONTENIDO_GENERADO: Punto 1 del desarrollo. Resalta palabras clave con <span style='color: #fdb913; font-weight: 600;'>amarillo</span> o <span style='color: #00F2FE; font-weight: 600;'>cian</span>.]</li>
+                            <li><strong>2. </strong> [CONTENIDO_GENERADO: Punto 2 del desarrollo.]</li>
+                            <li><strong>3. </strong> [CONTENIDO_GENERADO: Punto 3 del desarrollo.]</li>
+                        </ul>
+                    </div>
+
+                    <div style="border-left: 2px solid #00F2FE; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #00F2FE; margin: 0 0 0.5rem 0;">🛠️ Actividad Práctica Guiada (10 min)</h4>
+                        <p style="margin: 0;">[CONTENIDO_GENERADO: Describe aquí la actividad práctica. Resalta el objetivo con <span style='color: #fdb913; font-weight: 600;'>amarillo</span>.]</p>
+                    </div>
+                    
+                    <div style="border-left: 2px solid #A951F6; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #A951F6; margin: 0 0 0.5rem 0;">💡 Check-out / Reflexión Final (5 min)</h4>
+                        <p style="margin: 0;">[CONTENIDO_GENERADO: Crea una pregunta, consejo o reflexión final única y relevante para las temáticas de la semana, conectando el aprendizaje con su futuro profesional.]</p>
+                    </div>
+
+                    <div style="border-left: 2px solid #fdb913; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #fdb913; margin: 0 0 0.5rem 0;">🎯 Cierre y Síntesis (5 min)</h4>
+                        <p style="margin-bottom: 0.5rem;"><strong>Aprendizajes Clave:</strong></p>
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <li>✅ [CONTENIDO_GENERADO: Primer aprendizaje clave.]</li>
+                            <li>✅ [CONTENIDO_GENERADO: Segundo aprendizaje clave.]</li>
+                        </ul>
+                        <p style="margin-top: 1rem;">Recordar la entrega de la <strong>${weekData.activityType}: ${weekData.activityName}</strong>.</p>
+                    </div>
+                </div>
+            `;
+            makeApiCall(prompt).then(response => {
+                if(response) document.getElementById('gemini-response').innerHTML = response;
+            });
+        }
+
+        async function validateAndGenerateChallenge(weekKey, expId, teacherInput) {
+            closeChallengeInputModal();
+            const weekData = recommendations[expId].weeks[weekKey];
+            openModal('Desafío <span class="futuristic-text-gradient">Profesional</span>', weekData.title.split(':')[0]);
+
+            if (!teacherInput.trim()) {
+                generateFinalChallenge(weekKey, expId, 'completo', '');
+                return;
+            }
+
+            const validationPrompt = `
+                Analiza la siguiente solicitud de un docente y compárala con los temas y la rúbrica de la semana.
+                - Solicitud del docente: "${teacherInput}"
+                - Temas de la semana: ${JSON.stringify(weekData.tematicas)}
+                - Rúbrica de la semana: ${JSON.stringify(weekData.rubrica)}
+                
+                Responde en formato JSON con la siguiente estructura:
+                - isValid: boolean (true si la solicitud tiene relación con los temas o la rúbrica, false si no).
+                - correctedTopic: string (la solicitud del docente corregida ortográficamente y de forma coherente).
+                - reason: string (si es inválido, una breve explicación del porqué).
+                - isPartial: boolean (true si la solicitud solo cubre una parte de la rúbrica).
+                - missingTopics: array de strings (si es parcial, una lista de los temas importantes de la rúbrica que faltan).
+            `;
+
+            const validationResult = await makeApiCall(validationPrompt, true);
+
+            if (!validationResult) return;
+
+            if (!validationResult.isValid) {
+                document.getElementById('gemini-subtitle').style.display = 'none';
+                document.getElementById('gemini-response').innerHTML = `<p class="text-center">La idea que ingresaste no parece estar relacionada con los temas de esta semana. ¿Quieres intentarlo de nuevo con otro tema o prefieres que genere un desafío completo basado en la rúbrica?</p>`;
+                const optionsContainer = document.getElementById('gemini-options');
+                optionsContainer.innerHTML = `
+                    <button onclick="closeModal(); showChallengeInputModal('${weekKey}', '${expId}');" class="futuristic-btn font-bold py-2 px-4 rounded-lg w-full">Ingresar nuevo tema</button>
+                    <button onclick="generateFinalChallenge('${weekKey}', '${expId}', 'completo', '')" class="futuristic-btn font-bold py-2 px-4 rounded-lg w-full">Generar por mí</button>
+                `;
+            } else if (validationResult.isPartial) {
+                document.getElementById('gemini-subtitle').style.display = 'none';
+                document.getElementById('gemini-response').innerHTML = `<p class="text-center">¡Buena idea! Tu propuesta sobre <strong>'${validationResult.correctedTopic}'</strong> es muy relevante. Para un desafío más completo, podríamos añadir práctica sobre: <strong>${validationResult.missingTopics.join(', ')}</strong>.<br><br>¿Qué prefieres?</p>`;
+                const optionsContainer = document.getElementById('gemini-options');
+                optionsContainer.innerHTML = `
+                    <button onclick="generateFinalChallenge('${weekKey}', '${expId}', 'enfocado', '${validationResult.correctedTopic}')" class="futuristic-btn font-bold py-2 px-4 rounded-lg w-full">Enfocarse en mi idea</button>
+                    <button onclick="generateFinalChallenge('${weekKey}', '${expId}', 'completo', '${validationResult.correctedTopic}')" class="futuristic-btn font-bold py-2 px-4 rounded-lg w-full">Añadir recomendaciones</button>
+                `;
+            } else {
+                generateFinalChallenge(weekKey, expId, 'completo', validationResult.correctedTopic);
+            }
+        }
+
+        function generateFinalChallenge(weekKey, expId, type, context) {
+            const weekData = recommendations[expId].weeks[weekKey];
+            const rubricaItems = weekData.rubrica.map(item => `- ${item}`).join('\n');
+            
+            openModal('Desafío <span class="futuristic-text-gradient">Profesional</span>', weekData.title.split(':')[0]);
+
+            const prompt = `
+                Actúa como un experto en diseño instruccional para Duoc UC, creando un micro-caso práctico llamado "Desafío Pro". El objetivo es que los estudiantes practiquen las habilidades de la semana para prepararse para su evaluación.
+
+                **Contexto General:**
+                - **Asignatura:** Herramientas Tecnológicas I
+                - **Semana:** ${weekData.title}
+                - **Herramienta Principal:** ${weekData.herramientas.join(', ')}
+                - **Temáticas Clave:** ${weekData.tematicas.join(', ')}
+                - **Rúbrica de Evaluación de la Semana:**
+                ${rubricaItems}
+                - **Foco del desafío:** ${type === 'enfocado' ? `Enfocado en: ${context}` : `Completo, cubriendo la rúbrica. Idea inicial del docente: ${context || 'Ninguna'}`}
+
+                **Instrucciones de Generación:**
+                1.  **Crea un Desafío Específico para la Herramienta:**
+                    * **Si la herramienta es "Microsoft Word":** El desafío DEBE incluir un bloque de texto plano para copiar. Usa una etiqueta \`<pre style="white-space: pre-wrap; word-wrap: break-word; background-color: #000; border: 1px solid #4A5568; padding: 1rem; border-radius: 0.5rem; color: #E2E8F0; font-family: monospace;">\`...\`</pre>\`. Las instrucciones deben pedir al estudiante que copie este texto y le aplique formatos específicos (negrita, alineación, listas, etc.) basados DIRECTAMENTE en la rúbrica de la semana. Si la rúbrica menciona "Combinación de correspondencia", DEBES generar una tabla HTML con datos de ejemplo (Nombre, Dirección, etc.) para que el estudiante la use como origen de datos.
+                    * **Si la herramienta es "Microsoft Excel":** El desafío DEBE incluir una tabla HTML (\`<table class="w-full text-left border-collapse text-sm">...\`</table>\`) con datos de ejemplo. La tabla DEBE tener una cabecera (\`<thead>\`) con letras de columna (A, B, C...) y cada fila en el cuerpo (\`<tbody>\`) DEBE comenzar con su número de fila (1, 2, 3...). Las instrucciones deben ser claras y referenciar celdas (ej. "En la celda G2..."), pidiendo cálculos (SUMA, PROMEDIO, etc.) basados DIRECTAMENTE en la rúbrica de la semana.
+                2.  **Formato de Salida:** Tu respuesta debe ser únicamente el código HTML, sin explicaciones previas ni marcadores de código. Usa la plantilla HTML proporcionada sin alterar su estructura.
+
+                **Plantilla HTML (Úsala textualmente):**
+                <div style="font-family: Inter, sans-serif; color: #e2e8f0; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 1.5rem;">
+                    <p style="margin: 0; font-style: italic; color: #a0aec0;">[CONTENIDO_GENERADO: Describe aquí el propósito del desafío en una frase.]</p>
+                    <div style="border-left: 2px solid #00F2FE; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #00F2FE; margin: 0 0 0.5rem 0;">CONTEXTO PROFESIONAL</h4>
+                        <p style="margin: 0;">[CONTENIDO_GENERADO: Describe aquí el escenario laboral. Resalta el rol profesional y la empresa con <strong>.]</p>
+                    </div>
+                    <div style="border-left: 2px solid #fdb913; padding-left: 1rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #fdb913; margin: 0 0 0.5rem 0;">MISIÓN</h4>
+                        <p style="margin: 0 0 1rem 0;">[CONTENIDO_GENERADO: Describe el objetivo principal de la misión.]</p>
+                        <ul style="list-style: '➡️ '; padding-left: 1.5rem; margin-bottom: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+                            [CONTENIDO_GENERADO: Crea aquí 3 o 4 ítems <li> con las instrucciones específicas. Resalta acciones y herramientas clave con <strong>.]
+                        </ul>
+                    </div>
+                    [CONTENIDO_GENERADO: Si corresponde, inserta aquí el bloque de texto con \`<pre>\` para Word o la tabla \`<table>\` para Excel. Para Excel, la tabla debe tener este estilo: \`<table class="w-full text-left border-collapse text-sm" style="border: 1px solid #4A5568;"><thead><tr style="background-color: #2D3748;"><th class="p-2"></th><th class="p-2">A</th>...</tr></thead><tbody><tr><td class="p-2 font-bold">1</td>...</tr></tbody></table>\`]
+                </div>
+            `;
+            makeApiCall(prompt).then(response => {
+                if(response) document.getElementById('gemini-response').innerHTML = response;
+            });
+        }
+
+        function generateFeedbackBank(weekKey, expId, teacherObservations = "") {
+            closeFeedbackInputModal();
+            const weekData = recommendations[expId].weeks[weekKey];
+            
+            openModal('Propuesta de Retroalimentación', weekData.activityIdentifier);
+            
+            const rubricaItems = weekData.rubrica.map(item => `- ${item}`).join('\n');
+
+            const prompt = `
+                Actúa como un experto docente y diseñador instruccional para Duoc UC. Tu tarea es generar una propuesta completa de retroalimentación para un estudiante (puedes usar un nombre ficticio como "Estimado/a [Nombre Estudiante]"), siguiendo una estructura HTML específica y basándote estrictamente en los criterios de evaluación proporcionados y las observaciones del docente.
+
+                **Contexto:**
+                - **Asignatura:** Herramientas Tecnológicas I
+                - **Actividad:** ${weekData.activityIdentifier}
+                - **Temáticas Clave:** ${weekData.tematicas.join(', ')}
+                - **Criterios de Evaluación (Pauta/Rúbrica):**
+                ${rubricaItems}
+                - **Observaciones del Docente:** ${teacherObservations || "Ninguna"}
+
+                **Instrucciones Clave:**
+                1.  **Idioma:** Toda la respuesta debe estar redactada **exclusivamente en español de Chile**.
+                2.  **Lógica de Evaluación:**
+                    * **Fuente de Verdad:** Las "Observaciones del Docente" son la máxima prioridad. Analiza cada observación, identifica a qué punto de la rúbrica se refiere, y clasifícalo como un "aspecto a mejorar".
+                    * **Asumir Logro:** Todos los puntos de la rúbrica que **NO** se mencionan explícitamente como un error en las observaciones del docente deben ser considerados como "aspectos positivos".
+                    * **Sin Observaciones:** Si el campo "Observaciones del Docente" está vacío ("Ninguna"), debes generar una retroalimentación balanceada por defecto, simulando que la mayoría de los puntos de la rúbrica fueron logrados y 1 o 2 no.
+                3.  **Corrección y Análisis:** Corrige cualquier error gramatical o de tipeo en las observaciones del docente. Analiza la intención: "uso bien las formulas pero se equivoco en la referencia avsoluta" significa que el uso de fórmulas es un aspecto positivo, pero el uso de referencias absolutas es un aspecto a mejorar.
+                4.  **Sugerencias Prácticas:** La sección de "Sugerencias" debe ofrecer instrucciones claras y paso a paso sobre CÓMO solucionar **cada uno** de los problemas mencionados en "aspectos a mejorar".
+                5.  **Resaltar Palabras Clave:** Dentro de los textos, utiliza la etiqueta <strong> para resaltar las herramientas o conceptos clave (ej: <strong>formato de título</strong>, <strong>función SUMA</strong>, etc.).
+                6.  **Formato Estricto:** El resultado final debe ser únicamente el bloque de código HTML, sin marcadores de código ni texto introductorio.
+
+                **Plantilla HTML (Úsala textualmente):**
+                <div style="font-family: Inter, sans-serif; color: #e2e8f0; font-size: 14px; line-height: 1.6;">
+                    <p style="margin-bottom: 1rem;">Estimado/a [Nombre Estudiante],</p>
+                    <p style="margin-bottom: 1.5rem;">Junto con saludarte, paso a entregarte la retroalimentación de la <strong>${weekData.activityIdentifier}</strong>. El objetivo de esta actividad era que pudieras aplicar y reforzar tus habilidades en ${weekData.tematicas.slice(-1)[0].toLowerCase()}, lo que te permitirá transformar datos en información clara y útil para la toma de decisiones.</p>
+                    
+                    <div style="border-left: 3px solid #4ade80; padding-left: 1rem; margin-bottom: 1.5rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #e2e8f0; margin: 0 0 0.75rem 0;">Entre los <span style="color: #4ade80;">aspectos positivos</span> que se destacan en el desarrollo de la Actividad tenemos:</h4>
+                        <ul style="list-style: '✅ '; padding-left: 1.5rem; margin-bottom: 0; display: flex; flex-direction: column; gap: 0.5rem; font-style: italic;">
+                            [CONTENIDO_GENERADO: Crea ítems <li> para CADA punto de la rúbrica NO mencionado por el docente. Sé específico y resalta conceptos clave con <strong>.]
+                        </ul>
+                    </div>
+
+                    <div style="border-left: 3px solid #f87171; padding-left: 1rem; margin-bottom: 1.5rem;">
+                        <h4 style="font-size: 1.125rem; font-weight: 700; color: #e2e8f0; margin: 0 0 0.75rem 0;">Por otro lado, sobre los <span style="color: #f87171;">aspectos a mejorar</span> en el desarrollo de la Actividad tenemos:</h4>
+                        <ul style="list-style: '⚠️ '; padding-left: 1.5rem; margin-bottom: 0; display: flex; flex-direction: column; gap: 0.5rem; font-style: italic;">
+                           [CONTENIDO_GENERADO: Crea un ítem <li> para CADA observación del docente. Asócialo a la rúbrica, sé específico y resalta conceptos clave con <strong>.]
+                        </ul>
+                    </div>
+
+                    <p style="margin-bottom: 1rem;">Para seguir mejorando y consolidar aún más tus habilidades, es fundamental que te familiarices con las herramientas específicas que se solicitan en la actividad:</p>
+                    <div style="border-left: 2px solid #00F2FE; padding-left: 1rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                       [CONTENIDO_GENERADO: Para CADA aspecto a mejorar, crea un párrafo <p> con un título <strong> y luego las instrucciones paso a paso. Resalta conceptos clave con <strong>. Ejemplo: <p><strong>Para insertar un minigráfico:</strong> Selecciona la celda de destino, ve a la pestaña <strong>Insertar</strong>, en el grupo <strong>Minigráficos</strong>, haz clic en <strong>Línea</strong> y selecciona el rango de datos correspondiente.</p>]
+                    </div>
+
+                    <p style="margin-bottom: 1.5rem;">Complementar tu aprendizaje participando en las actividades interactivas disponibles en el Foro de Consultas y revisando los videos proporcionados allí.</p>
+                    <p style="margin-bottom: 0;">Con estas acciones, podrás consolidar tu aprendizaje, responder correctamente en futuras actividades.</p>
+                    <p style="margin-bottom: 1rem;">Recuerda que puedes contactarme por los canales oficiales ante cualquier duda o consulta.</p>
+                    <p style="margin-bottom: 0;">¡Mucho éxito y buen trabajo!</p>
+                    <p style="margin-bottom: 0;">Saludos,</p>
+                    <p style="margin-bottom: 0;">Tu Docente.</p>
+                </div>
+            `;
+            makeApiCall(prompt).then(response => {
+                if(response) document.getElementById('gemini-response').innerHTML = response;
+            });
+        }
+
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('gemini-modal');
+            const feedbackInputModal = document.getElementById('feedback-input-modal');
+            const optionsModal = document.getElementById('options-modal');
+            const teacherNotesModal = document.getElementById('teacher-notes-modal');
+            const challengeInputModal = document.getElementById('challenge-input-modal');
+            const copyrightModal = document.getElementById('copyright-modal');
+            const responsibilitiesModal = document.getElementById('responsibilities-modal');
+
+            if (event.target == modal) closeModal();
+            if (event.target == optionsModal) closeOptionsModal();
+            if (event.target == feedbackInputModal) closeFeedbackInputModal();
+            if (event.target == teacherNotesModal) closeTeacherNotesModal();
+            if (event.target == challengeInputModal) closeChallengeInputModal();
+            if (event.target == copyrightModal) closeCopyrightModal();
+            if (event.target == responsibilitiesModal) closeResponsibilitiesModal();
+        }
+    </script>
+
+</body>
+</html>
