@@ -910,8 +910,15 @@
                     };
                  }
 
-                 const apiKey = "AIzaSyApCSCXMRoALa9HzRqpdKLf_U4vyZZfANI"; 
-                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                 // ===================================================================================
+                 // CONFIGURACIÓN DE LA API KEY Y MODELO
+                 // ===================================================================================
+                 // Para uso local: Reemplaza las comillas vacías con tu API Key real de Google AI Studio.
+                 // Ejemplo: const apiKey = "AIzaSy...";
+                 const apiKey = ""; 
+                 
+                 // Se actualizó el modelo a la versión más reciente compatible con la preview actual
+                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                  
                  const response = await fetch(apiUrl, {
                      method: 'POST',
