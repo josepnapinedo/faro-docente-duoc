@@ -910,14 +910,7 @@
                     };
                  }
 
-                 // ===================================================================================
-                 // CONFIGURACIÓN DE LA API KEY Y MODELO
-                 // ===================================================================================
-                 // Para uso local: Reemplaza las comillas vacías con tu API Key real de Google AI Studio.
-                 // Ejemplo: const apiKey = "AIzaSy...";
-                 const apiKey = "AIzaSyA9QbNYA7y70B1U-OyvgC19CX5Zogifr_o"; 
-                 
-                 // Se actualizó el modelo a la versión más reciente compatible con la preview actual
+                 const apiKey = "AIzaSyCUcLvc2WiAttCsfPT9Asr_9Bingx2o94s"; 
                  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                  
                  const response = await fetch(apiUrl, {
